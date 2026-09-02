@@ -9,7 +9,8 @@ export const reservationCreateSchema = z.object({
     .string()
     .trim()
     .regex(/^[0-9-]{9,15}$/, "電話番号の形式が正しくありません"),
-  lineUserId: z.string().min(1),
+  // LINEユーザーIDは自己申告させず、idTokenをサーバー側でLINEに検証させて取得する（なりすまし防止）
+  idToken: z.string().min(1),
 });
 
 export type ReservationCreateInput = z.infer<typeof reservationCreateSchema>;

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { useLiff } from "@/lib/line/LiffProvider";
+import { liff } from "@/lib/line/liff";
 import { formatDateJa } from "@/lib/utils/date";
 
 export default function ConfirmPage() {
@@ -41,6 +42,13 @@ function ConfirmContent() {
     e.preventDefault();
     if (liffState.status !== "ready" || !liffState.userId) return;
 
+    const idToken = liff.getIDToken();
+    if (!idToken) {
+      setStatus("error");
+      setErrorMessage("LINEの認証情報を取得できませんでした。LINEアプリから開き直してください。");
+      return;
+    }
+
     setStatus("submitting");
     setErrorMessage("");
 
@@ -53,7 +61,7 @@ function ConfirmContent() {
         startTime: time,
         customerName,
         phone,
-        lineUserId: liffState.userId,
+        idToken,
       }),
     });
 

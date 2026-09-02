@@ -40,7 +40,7 @@ Supabaseダッシュボードの **SQL Editor** で `supabase/migrations/0001_in
    - チャネルアクセストークン（長期）を発行 → `LINE_CHANNEL_ACCESS_TOKEN`
 2. 同じプロバイダー内に**LIFFアプリ**を追加
    - Endpoint URLに、デプロイ先のLIFF画面のURL（例：`https://your-app.vercel.app/liff`）を設定
-   - Scopeは `profile` を有効化
+   - Scopeは `profile` と `openid` を有効化（`openid`はサーバー側でLINEユーザーIDを検証するIDトークンの発行に必須）
    - 発行されたLIFF IDを `NEXT_PUBLIC_LIFF_ID` に設定
 3. Messaging APIチャネルの「Messaging API設定」で、**リッチメニュー**を作成し、ボタンのリンク先をLIFFのURL（`https://liff.line.me/<LIFF ID>`）に設定する
 4. 応答メッセージ・あいさつメッセージは任意でオフにしてよい（本ツールは自動応答Botではなく、予約確定・リマインドの通知のみ送信する）

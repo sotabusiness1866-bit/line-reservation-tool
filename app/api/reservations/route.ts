@@ -4,6 +4,7 @@ import { buildTimeRange, getAvailableSlots } from "@/lib/availability";
 import { formatDateJa, jstWeekday } from "@/lib/utils/date";
 import { getBusinessHour, getReservedIntervals, isClosedDate } from "@/lib/reservations-service";
 import { sendLineMessage } from "@/lib/line/messaging";
+import { verifyLiffIdToken } from "@/lib/line/verify";
 import { reservationCreateSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -15,7 +16,16 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-  const { menuId, dateStr, startTime, customerName, phone, lineUserId } = parsed.data;
+  const { menuId, dateStr, startTime, customerName, phone, idToken } = parsed.data;
+
+  // クライアントが自己申告するlineUserIdを信用せず、LINEに問い合わせて本物のユーザーIDを取得する
+  const lineUserId = await verifyLiffIdToken(idToken);
+  if (!lineUserId) {
+    return NextResponse.json(
+      { error: "LINE認証の確認に失敗しました。LINEアプリから開き直してもう一度お試しください。" },
+      { status: 401 }
+    );
+  }
 
   const supabase = createServiceRoleClient();
   const { data: menu, error: menuError } = await supabase
