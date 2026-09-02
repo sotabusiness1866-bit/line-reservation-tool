@@ -1,4 +1,4 @@
-import { addMinutes, areIntervalsOverlapping, format, isBefore } from "date-fns";
+import { addMinutes, areIntervalsOverlapping, isBefore } from "date-fns";
 
 // 店舗の営業タイムゾーンは日本国内の実店舗のみを想定するため、常にJST(+09:00)で計算する
 export const STORE_TIMEZONE_OFFSET = "+09:00";
@@ -21,6 +21,17 @@ function toJstDate(dateStr: string, time: string): Date {
   // time: "HH:mm" or "HH:mm:ss"
   const hhmmss = time.length === 5 ? `${time}:00` : time;
   return new Date(`${dateStr}T${hhmmss}${STORE_TIMEZONE_OFFSET}`);
+}
+
+// date-fnsのformatはサーバーのローカルタイムゾーン(Vercel上ではUTC)に依存してしまうため、
+// JST表示にはIntl.DateTimeFormatでタイムゾーンを明示する
+function formatJstTime(date: Date): string {
+  return new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
 }
 
 /**
@@ -61,7 +72,7 @@ export function getAvailableSlots(params: {
     );
 
     if (!isPast && !overlapsExisting) {
-      slots.push(format(cursor, "HH:mm"));
+      slots.push(formatJstTime(cursor));
     }
 
     cursor = addMinutes(cursor, SLOT_INTERVAL_MINUTES);
